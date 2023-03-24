@@ -11,12 +11,13 @@ class VkApi:
 
     def __init__(self, _token):
 
+        # Обязательные параметры запроса к API VK.
         self.required_parameters = {
                                     'access_token': _token,
                                     'v': '5.81'
                                     }
 
-    # Метод возвращает ID пользователя ВК, если вместо ID используется alias:
+    # Метод возвращает ID пользователя "ВК", если вместо ID используется alias:
     def users_get(self, _user_id):
 
         _method = 'users.get'
@@ -29,7 +30,7 @@ class VkApi:
 
         return res.json()['response'][0]['id']
 
-    # Метод возвращает данные по фотографиям пользователя ВК с учетом заданных параметров:
+    # Метод возвращает данные по фотографиям пользователя "ВК" с учетом заданных параметров запроса:
     def photo_get(self, _userID):
 
         # Блок проверки и преобразования ID:
@@ -47,7 +48,7 @@ class VkApi:
             'owner_id': _user_id,
             'album_id': 'profile',
             'extended': 1,
-            'count': 15
+            'count': 5
         }
 
         # Основной запрос метода, возвращает файл с данными в формате json для дальнейшей обработки.
@@ -56,7 +57,7 @@ class VkApi:
         return res.json()
 
 
-# Создаем класс и методы для работы с API Яндекс Диска.
+# Создаем класс и методы для работы с API "Яндекс Диска".
 class YandexDiscAPI:
 
     yandex_Api_URL = 'https://cloud-api.yandex.net'
@@ -64,8 +65,7 @@ class YandexDiscAPI:
     def __init__(self, _token):
         self.token = _token
 
-    # Метод формирует обязательные заголовки параметра headers.
-    # Данные заголовки обязательны для работы с запросами к REST API Яндекс диска.
+    # Метод формирует обязательные заголовки параметра headers для работы с запросами к REST API "Яндекс диска".
     def get_headers(self):
 
         return {
@@ -73,7 +73,7 @@ class YandexDiscAPI:
                 'Authorization': f'OAuth {self.token}'
                 }
 
-    # Метод создающий папку на Яндекс Диске.
+    # Метод создает папку на "Яндекс Диске".
     def create_folder(self, _folder_name):
 
         _method = '/v1/disk/resources'
@@ -87,7 +87,7 @@ class YandexDiscAPI:
 
         return res
 
-    # Метод загрузки фотографий по URL из ВК на "Яндекс Диск".
+    # Метод загрузки фотографий по URL из "ВК" на "Яндекс Диск".
     # По окончанию загрузки метод формирует лог-файл в формате json с информацией о загруженных файлах.
     def upload_photo(self, _data_file, _folder_name):
 
@@ -95,10 +95,10 @@ class YandexDiscAPI:
         _method = '/v1/disk/resources/upload'
         _request_URL = f'{self.yandex_Api_URL}{_method}'
 
-        # Вызываем метод и создаем новую папку с указанным именем на Яндекс Диске:
+        # Вызываем метод создания новой папки с указанным именем на Яндекс Диске:
         _upload_folder = self.create_folder(_folder_name)
 
-        # Подготавливаем данные для итерации в цикле for:
+        # Подготавливаем данные полученные со страницы пользователя "ВК" для итерации в цикле for:
         _photo_data = _data_file['response']['items']
 
         # Список для сбора данных о загруженных файла. Будет записан в лог-файл формата json.
@@ -149,7 +149,7 @@ class YandexDiscAPI:
 if __name__ == '__main__':
 
     # Читаем токен ВК из файла в переменную:
-    with open('tokenStudy_VK_API.txt') as f:
+    with open('.txt') as f:
         vkApiToken = f.read()
 
     # Инициализируем объект класса VkApi:
@@ -161,10 +161,10 @@ if __name__ == '__main__':
     # При помощи метода класса photo_get() получаем информацию из профиля ВК и сохраняем данные в VK_photo:
     VK_photo = Vk_response.photo_get(userID)
 
-# Блок 2. Обработка полученных данных VK_photo и работа API Яндекс Диска.
+# Блок 2. Обработка полученных данных VK_photo и работа API "Яндекс Диска".
 
-    # Читаем токен Яндекс Диска из файла в переменную:
-    with open('tokenYandexDisc.txt') as f:
+    # Читаем токен "Яндекс Диска" из файла в переменную:
+    with open('.txt') as f:
         yandexDiscToken = f.read()
 
     # Инициализируем объект класса YandexDiscAPI:
@@ -174,11 +174,9 @@ if __name__ == '__main__':
     YD_folder_name = input('Укажите имя каталога "Яндекс Диска" для сохранения фотографий: ')
 
     # Вызываем метод upload_photo, в результате работы которого будет создан каталог на "Яндекс Диске".
-    # В данный каталог мы загрузим фотографии пользователя ВК по указанным ID.
+    # В данный каталог мы загрузим фотографии пользователя ВК c указанным ID.
     # По итогам загрузки будет сформирован лог-файл в формате json.
     YD_response.upload_photo(VK_photo, YD_folder_name)
 
-#     # userID = 'blacksmithoky'
-#     # userID = '24506334'
 
 
