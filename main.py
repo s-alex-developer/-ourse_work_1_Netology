@@ -87,6 +87,23 @@ class YandexDiscAPI:
 
         return res
 
+    # Метод определяет максимально возможное качество фотографии из предложенных,
+    # возвращает ссылку для скачивания и соответствующее значение параметра type:
+    def get_quality(self, _photo):
+        _max_height = 0
+        _href = ''
+        _size = ''
+        for _el in _photo['sizes']:
+            if _el['height'] == 0:
+                _href = _photo['sizes'][-1]['url']
+                _size = _photo['sizes'][-1]['type']
+                break
+            elif _max_height <= _el['height']:
+                _max_height = _el['height']
+                _href = _el['url']
+                _size = _el['type']
+        return _href, _size
+
     # Метод загрузки фотографий по URL из "ВК" на "Яндекс Диск".
     # По окончанию загрузки метод формирует лог-файл в формате json с информацией о загруженных файлах.
     def upload_photo(self, _data_file, _folder_name):
@@ -112,8 +129,7 @@ class YandexDiscAPI:
 
             _new_file_name = f"{_photo['likes']['count']}.jpg"
             _end_of_name = f"_{_photo['date']}"
-            _download_href = _photo['sizes'][-1]['url']
-            _size = _photo['sizes'][-1]['type']
+            _download_href, _size = self.get_quality(_photo)
 
             # Блок проверки дублирования имен файлов и их редактирование при совпадении:
             if _new_file_name not in _check_list:
@@ -131,14 +147,14 @@ class YandexDiscAPI:
                         }
             _headers = self.get_headers()
 
-            res = requests.post(_request_URL, params=_params, headers=_headers)
+            requests.post(_request_URL, params=_params, headers=_headers)
 
             # Добавляем необходимую информацию по каждому загруженному файлу изображения:
             _logs_list.append({"file_name": _new_file_name, "size": _size})
 
         # Блок записи лог-файла в формате json с информацией по всем загруженным на "Яндекс Диск" файлам.
         with open('logs.json', 'w') as _f:
-            json.dump(_logs_list, _f)
+            json.dump(_logs_list, _f, indent=4)
             print(f'\nФайл "logs.json." создан. Содержит информацию по загруженным файлам.')
 
         print('\nЗагрузка файлов завершена.')
@@ -176,7 +192,7 @@ if __name__ == '__main__':
     # Вызываем метод upload_photo, в результате работы которого будет создан каталог на "Яндекс Диске".
     # В данный каталог мы загрузим фотографии пользователя ВК c указанным ID.
     # По итогам загрузки будет сформирован лог-файл в формате json.
-    YD_response.upload_photo(VK_photo, YD_folder_name)
 
+    YD_response.upload_photo(VK_photo, YD_folder_name)
 
 
